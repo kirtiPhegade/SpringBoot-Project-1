@@ -3,9 +3,11 @@ package com.ecommerce.project.controller;
 import com.ecommerce.project.model.Category;
 import com.ecommerce.project.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -26,14 +28,22 @@ public class CategoryController {
     }
 
     @DeleteMapping("api/admin/categories/{categoryID}")
-    public String deleteCategory(@PathVariable Long categoryID){
-        String status = categoryService.deleteCategory(categoryID);
-        return status;
+    public ResponseEntity<String> deleteCategory(@PathVariable Long categoryID){
+        try {
+            String status = categoryService.deleteCategory(categoryID);
+            return new ResponseEntity<>(status, HttpStatus.OK);
+        }catch(ResponseStatusException e){
+            return new ResponseEntity<>("Category is not found",HttpStatus.NOT_FOUND);
+        }
     }
 
     @PutMapping("api/admin/categories/{categoryID}")
-    public String updateCategory(@PathVariable Long categoryID, @RequestBody Category category){
-        String status = categoryService.updateCategory(categoryID,category);
-        return status;
+    public ResponseEntity<String> updateCategory(@PathVariable Long categoryID, @RequestBody Category category){
+        try {
+            categoryService.updateCategory(categoryID, category);
+            return new ResponseEntity<>("Category is updated", HttpStatus.OK);
+        }catch(ResponseStatusException e){
+            return new ResponseEntity<>("Category is not found",e.getStatusCode());
+        }
     }
 }
